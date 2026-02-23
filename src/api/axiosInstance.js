@@ -33,7 +33,8 @@ api.login = (payload) => api.post("/admin/signin", payload);
 //驗證登入API
 api.checkLogin = () => api.post("/api/user/check");
 //取得產品API
-api.getProducts = () => api.get(`/api/${API_PATH}/admin/products`);
+api.getProducts = (page = 1) =>
+  api.get(`/api/${API_PATH}/admin/products?page=${page}`);
 //新增or更新產品API
 api.updateProduct = (type, id, data) =>
   api[type === "create" ? "post" : "put"](
@@ -47,5 +48,8 @@ api.editProduct = (id, data) =>
   api.put(`/api/${API_PATH}/admin/product/${id}`, data);
 //刪除產品API
 api.deleteProduct = (id) => api.delete(`/api/${API_PATH}/admin/product/${id}`);
+//上傳圖片API
+api.uploadImage = (formData) =>
+  api.post(`/api/${API_PATH}/admin/upload`, formData);
 
 export default api;

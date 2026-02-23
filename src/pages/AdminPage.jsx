@@ -1,16 +1,49 @@
+import { useState } from "react";
 import ProductsTable from "../components/ProductsTable";
 import ProductDetail from "../components/ProductDetail";
+import api from "../api/axiosInstance";
 
 export default function AdminPage({
   products,
-  tempProduct,
-  tempImgUrl,
-  setTempProduct,
-  setTempImgUrl,
   checkLogin,
-  updateProducts,
-  deleteProduct,
+  pagination,
+  getProducts,
 }) {
+  const [tempProduct, setTempProduct] = useState(null);
+  const [tempImgUrl, setTempImgUrl] = useState(null);
+
+  const updateProducts = async (id, product, type) => {
+    if (!product) {
+      throw new Error("product is null");
+    }
+    const productData = {
+      data: {
+        ...product,
+        origin_price: Number(product.origin_price || 0),
+        price: Number(product.price || 0),
+        is_enabled: product.is_enabled ? 1 : 0,
+        imagesUrl: [...product.imagesUrl.filter((url) => url !== undefined)],
+      },
+    };
+    try {
+      const res = await api.updateProduct(type, id, productData);
+      console.log(res.data.message);
+      alert(res.data.message);
+      await getProducts();
+    } catch (error) {
+      console.dir(error.response?.data.message);
+    }
+  };
+  const deleteProduct = async (id) => {
+    try {
+      const res = await api.deleteProduct(id);
+      console.log(res.data.message);
+      alert(res.data.message);
+      await getProducts();
+    } catch (error) {
+      console.dir(error.response?.data.message);
+    }
+  };
   const handleUpdateProduct = async (product, type, closeModal) => {
     if (!product) {
       console.error("product is null");
@@ -39,12 +72,14 @@ export default function AdminPage({
         <ProductsTable
           products={products}
           checkLogin={checkLogin}
-          onSelectProduct={(product) => {
-            setTempProduct(product);
-            setTempImgUrl(product.imageUrl);
-          }}
+          pagination={pagination}
+          getProducts={getProducts}
           onUpdateProduct={handleUpdateProduct}
           onDeleteProduct={handleDeleteProduct}
+          // onSelectProduct={(product) => {
+          //   setTempProduct(product);
+          //   setTempImgUrl(product.imageUrl);
+          // }}
         />
         {/* <ProductDetail
           products={products}
